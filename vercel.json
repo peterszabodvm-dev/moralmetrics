@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/[platform].js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(mac|linux|windows)$", "dest": "/api/[platform].js" }
+  ]
+}
