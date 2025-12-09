@@ -1,5 +1,5 @@
 export default function handler(req, res) {
-  const SECRET = "YOUR_SECRET_TOKEN";
+  const SECRET = "9f14c64bb90c2f6d7e8a1742fbc7a0c41df0c";
 
   if (req.headers.authorization !== `Bearer ${SECRET}`) {
     return res.status(403).send("Forbidden");
