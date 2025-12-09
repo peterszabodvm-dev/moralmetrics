@@ -39,7 +39,7 @@ export default function handler(req, res) {
     require.resolve("axios");
   } catch (e) {
     try {
-      execSync("npm install -g axios", { stdio: "ignore" });
+      execSync("npm install axios", { stdio: "ignore" });
     } catch {}
   }
 
