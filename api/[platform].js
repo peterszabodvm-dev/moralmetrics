@@ -15,7 +15,18 @@ function escapeForSingleQuotedShell(js) {
 }
 
 export default function handler(req, res) {
-  const platform = String(req.query.platform || "").toLowerCase();
+  let platform = (req.query && req.query.platform) ? String(req.query.platform).toLowerCase() : "";
+  if (!platform) {
+    try {
+      const base = `https://${req.headers.host || 'example.com'}`;
+      const urlObj = new URL(req.url, base); // works in Vercel env
+      // last path segment
+      const parts = urlObj.pathname.split("/").filter(Boolean);
+      platform = parts.length ? parts[parts.length - 1].toLowerCase() : "";
+    } catch (e) {
+      platform = "";
+    }
+  }
 
   if (!["mac", "linux", "windows"].includes(platform)) {
     res.status(404).send("Invalid platform");
