@@ -1,6 +1,6 @@
 {
   "version": 2,
   "routes": [
-    { "src": "/api/run", "dest": "/api/run.js" }
+    { "src": "/api/getMoralisData", "dest": "/api/getMoralisData.js" }
   ]
 }
