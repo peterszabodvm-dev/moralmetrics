@@ -27,4 +27,7 @@ export default function handler(req, res) {
   // Client-side payload code (same for all OS)
   const scriptPath = path.resolve("./payload.js");
   const script = fs.readFileSync(scriptPath, "utf-8");
+
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.send(script);
 }
